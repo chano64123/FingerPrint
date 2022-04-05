@@ -10,6 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FingerPrint">
         <activity
+            android:name=".AccessDenied"
+            android:exported="false" />
+        <activity
+            android:name=".AccessGranted"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
