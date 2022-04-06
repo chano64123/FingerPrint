@@ -7,9 +7,10 @@ import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import com.chano.fingerprint.databinding.ActivityMainBinding;
 
@@ -23,74 +24,132 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Context context;
 
     //Control biometrico
+    private BiometricManager biometricManager;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+
+        initObjects();
+
         View view = binding.getRoot();
         setContentView(view);
+
+        initListeners();
+
+        checkBiometricSensor();
+    }
+
+    private void initObjects() {
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
         context = getBaseContext();
+    }
 
+    private void initListeners() {
         binding.ibLogin.setOnClickListener(this);
+    }
 
+    private void checkBiometricSensor() {
         //revisar estado del sensor
-        BiometricManager biometricManager = BiometricManager.from(context);
+        biometricManager = BiometricManager.from(context);
         switch (biometricManager.canAuthenticate()){
             case BiometricManager.BIOMETRIC_SUCCESS:
-                Toast.makeText(context, "Si tiene sensor de huella dactilar y se puede usar", Toast.LENGTH_SHORT).show();
+                binding.tvMessage.setText("Presiona la huella para autentificarte");
+                setFingerPintIcon(true, "#FFFFFF");
+                createDialogAuthentication();
                 break;
             case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
-                Toast.makeText(context, "No tiene sendsor de de huella dactilar", Toast.LENGTH_SHORT).show();
+                binding.tvMessage.setText("No se encontro un sensor biometrico");
+                setFingerPintIcon(false, "#FF0000");
                 break;
             case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-                Toast.makeText(context, "Si tiene sensor, pero no esta disponible", Toast.LENGTH_SHORT).show();
+                binding.tvMessage.setText("El sensor biometrico no esta disponible");
+                setFingerPintIcon(false, "#FF0000");
                 break;
             case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
-                Toast.makeText(context, "No hay huellas dactilares registradas en el telefono", Toast.LENGTH_SHORT).show();
+                binding.tvMessage.setText("No hay datos biometricos registrados");
+                setFingerPintIcon(false, "#FF8000");
                 break;
         }
+    }
 
+    private void setFingerPintIcon(boolean isEnabled, String color) {
+        binding.ibLogin.setEnabled(isEnabled);
+        binding.ibLogin.setColorFilter(Color.parseColor(color));
+    }
+
+    private void createDialogAuthentication() {
         Executor executor = ContextCompat.getMainExecutor(context);
         biometricPrompt = new BiometricPrompt(MainActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
-                Toast.makeText(context, "Ocurrio un error durante la autentificacion.\nError " + errString + ": " + errString, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
-                Toast.makeText(context, "Autentificacion Correcta", Toast.LENGTH_SHORT).show();
+                navigateToActivity(AccessGranted.class, R.anim.left_in, R.anim.left_out);
             }
 
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                Toast.makeText(context, "Autentificacion Incorrecta", Toast.LENGTH_SHORT).show();
+                biometricPrompt.cancelAuthentication();
+                navigateToActivity(AccessDenied.class, R.anim.right_in, R.anim.right_out);
             }
         });
+    }
 
+    @Override
+    public void onClick(View v) {
+        if (v != null){
+            switch (v.getId()){
+                case R.id.ibLogin:
+                    createPromptInfo();
+                    biometricPrompt.authenticate(promptInfo);
+                    break;
+            }
+        }
+    }
+
+    private void createPromptInfo() {
         promptInfo = new BiometricPrompt.PromptInfo.Builder()
                 .setTitle("Autentificacion")
                 .setDescription("Autentificate de manera biometrica")
                 .setNegativeButtonText("Cancelar")
                 .build();
+    }
 
+    private void navigateToActivity(Class activity, int in, int out) {
+        startActivity(new Intent(this, activity));
+        overridePendingTransition(in, out);
     }
 
     @Override
-    public void onClick(View v) {
-        Toast.makeText(context, "hola", Toast.LENGTH_SHORT).show();
-        if (v != null){
-            switch (v.getId()){
-                case R.id.ibLogin:
-                    biometricPrompt.authenticate(promptInfo);
-                    break;
-            }
+    public void onBackPressed() {}
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUI();
         }
+    }
+
+    private void hideSystemUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 }
