@@ -56,21 +56,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         biometricManager = BiometricManager.from(context);
         switch (biometricManager.canAuthenticate()){
             case BiometricManager.BIOMETRIC_SUCCESS:
-                binding.tvMessage.setText("Presiona la huella para autentificarte");
-                setFingerPintIcon(true, "#FFFFFF");
+                binding.tvMessage.setText(R.string.text_bimetric_success);
+                setFingerPintIcon(true, getString(R.string.color_green));
                 createDialogAuthentication();
                 break;
             case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
-                binding.tvMessage.setText("No se encontro un sensor biometrico");
-                setFingerPintIcon(false, "#FF0000");
+                binding.tvMessage.setText(R.string.text_biometric_error_no_hardware);
+                setFingerPintIcon(false, getString(R.string.color_red));
                 break;
             case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-                binding.tvMessage.setText("El sensor biometrico no esta disponible");
-                setFingerPintIcon(false, "#FF0000");
+                binding.tvMessage.setText(R.string.text_biometric_error_hw_unavailable);
+                setFingerPintIcon(false, getString(R.string.color_red));
                 break;
             case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
-                binding.tvMessage.setText("No hay datos biometricos registrados");
-                setFingerPintIcon(false, "#FF8000");
+                binding.tvMessage.setText(R.string.text_biometric_error_none_enrolled);
+                setFingerPintIcon(false, getString(R.string.color_orange));
                 break;
         }
     }
@@ -117,9 +117,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void createPromptInfo() {
         promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Autentificacion")
-                .setDescription("Autentificate de manera biometrica")
-                .setNegativeButtonText("Cancelar")
+                .setTitle(getString(R.string.tittle_prompt_biometric))
+                .setDescription(getString(R.string.description_prompt_biometric))
+                .setNegativeButtonText(getString(R.string.negative_button_prompt_biometric))
                 .build();
     }
 

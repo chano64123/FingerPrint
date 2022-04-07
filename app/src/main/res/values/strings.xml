@@ -1,3 +1,15 @@
 <resources>
-    <string name="app_name">FingerPrint</string>
+    <string name="app_name">Kazuro\'s FingerPrint</string>
+    <string name="message_denied">No se pudo autentificar!!!</string>
+    <string name="message_granted">Usuario autentificado!!!</string>
+    <string name="text_bimetric_success">Presiona la huella para autentificarte</string>
+    <string name="text_biometric_error_no_hardware">No se encontro un sensor biometrico</string>
+    <string name="text_biometric_error_hw_unavailable">El sensor biometrico no esta disponible</string>
+    <string name="text_biometric_error_none_enrolled">No hay datos biometricos registrados</string>
+    <string name="tittle_prompt_biometric">Autentificacion</string>
+    <string name="description_prompt_biometric">Autentificate de manera biometrica</string>
+    <string name="negative_button_prompt_biometric">Cancelar</string>
+    <string name="color_green">#00FF00</string>
+    <string name="color_red">#FF0000</string>
+    <string name="color_orange">#FF8000</string>
 </resources>
